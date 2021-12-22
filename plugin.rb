@@ -6,22 +6,26 @@
 
 after_initialize do
   module ::Slug
-
-    def self.for(string, default = 'topic')
+    
+    def self.for(string, default = 'topic', max_length = MAX_LENGTH, method: nil)
 
       # For Vietnamese slug
       vietnamese   = "àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐêùà"
       replacements = "aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyydAAAAAAAAAAAAAAAAAEEEEEEEEEEEIIIIIOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYDeua"
       string = string.tr(vietnamese, replacements)
       # End Vietnamese slug
-      slug = case (SiteSetting.slug_generation_method || :ascii).to_sym
-           when :ascii then self.ascii_generator(string)
-           when :encoded then self.encoded_generator(string)
-           when :none then self.none_generator(string)
-           end
-      # Reject slugs that only contain numbers, because they would be indistinguishable from id's.
-      slug = (slug =~ /[^\d]/ ? slug : '')
-      slug.blank? ? default : slug
+      method = (method || SiteSetting.slug_generation_method || :ascii).to_sym
+      max_length = 9999 if method == :encoded # do not truncate encoded slugs
+
+      slug =
+        case method
+        when :ascii then self.ascii_generator(string)
+        when :encoded then self.encoded_generator(string)
+        when :none then self.none_generator(string)
+        end
+
+      slug = self.prettify_slug(slug, max_length: max_length)
+      (slug.blank? || slug_is_only_numbers?(slug)) ? default : slug
     end
 
   end

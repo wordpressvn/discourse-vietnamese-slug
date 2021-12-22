@@ -27,7 +27,11 @@ after_initialize do
       slug = self.prettify_slug(slug, max_length: max_length)
       (slug.blank? || slug_is_only_numbers?(slug)) ? default : slug
     end
+          
+    private
 
+    def self.slug_is_only_numbers?(slug)
+      (slug =~ /[^\d]/).blank?
   end
   
   module ::UserNameSuggester

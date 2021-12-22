@@ -1,6 +1,6 @@
 # name: discourse-vietnamese-slug
 # about: A Discourse plugin to generate Vietnamese slug
-# version: 0.1
+# version: 0.2
 # authors: Khoa Nguyen, @eviltrout, @riking
 # url: https://github.com/thangngoc89/discourse-vietnamese-slug
 
